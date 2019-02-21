@@ -1,0 +1,4 @@
+<QueryXml ServiceType='YGSM' QueryType2 = '21' Account='17601543213'
+QueryContent='查询IMEI为867951035264677,在时间段20190220155707至20190220155707内,移动GSM业务中所有的通话记录'
+Conditions = 'BeginTime,20190220155707;EndTime,20190220155707;IMEI867951035264677' >
+</QueryXml>

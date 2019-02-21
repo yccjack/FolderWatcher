@@ -1,0 +1,1 @@
+http://192.168.6.135:8080/simulate_websvc_server/QueryServiceFor718ImplPort?wsdl

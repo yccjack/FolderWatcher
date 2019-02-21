@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>根页面</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <link href="bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="js/html5.js"></script>
+    <script src="js/respond.min.js"></script>
+    -->
+</head>
+<body>
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="js/jquery-3.3.1.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="js/bootstrap.min.js"></script>
+<!--加载日期插件 -->
+
+<script src="bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.min.js"></script>
+
+<script src="js/userJs/importJson.js"></script>
+
+<!-- 导航区 -->
+
+<div class="container">
+    <ul class="nav nav-tabs" role="tablist" id="root">
+        <li role="presentation"><a href="#queryDataTab" data-toggle="tab">queryData</a></li>
+        <li role="presentation"><a href="#queryStatusTab" data-toggle="tab">queryStatus</a></li>
+        <!--<li role="presentation"><a href="#basicResourceTab" data-toggle="tab">basicResource</a></li>-->
+        <!--<li role="presentation"><a href="#alarmTab" data-toggle="tab">alarm</a></li>-->
+        <!--<li role="presentation"><a href="#statisticsTab" data-toggle="tab">statistics</a></li>-->
+    </ul>
+
+    <!-- 面板区 -->
+    <div class="tab-content">
+        <div class="tab-pane active " id="queryDataTab">
+            <hr>
+            <div class="dropdown" style="padding-left: 11px">
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="true">
+                    <span id="methodName">QueryData</span><span class = "caret"></span></button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu" id="menuId">
+                    <li><a href="#">QueryData</a></li>
+                    <li><a href="#">Statistics</a></li>
+                    <li><a href="#">BasicResource</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li class="disabled" ><a href="#">Alarm</a></li>
+                </ul>
+            </div>
+            <!--第一行参数 -->
+            <div>
+
+                <div class="form-group">
+                    <div class="col-sm-4">
+                        <label for="queryData">业务名(ServerType)</label>
+                        <select class="form-control" id="queryData" name="queryData">
+                        </select>
+                        <input type="hidden" id="rel_queryData" value="" name="rel_queryData">
+                    </div>
+                    <div class="col-sm-4">
+
+                        <label for="queryType2">查询类别(QueryType2)</label>
+                        <select class="form-control" id="queryType2">
+
+                        </select>
+
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="rel_queryType2">复选(具体queryType2的值)</label>
+                        <select class="form-control" id="rel_queryType2" name="queryType2">
+                        </select>
+
+                    </div>
+                    <!--&lt;!&ndash; 开始时间&ndash;&gt;-->
+                    <!--<div class="col-sm-2">-->
+                    <!--<label for="startTime">startTime</label>-->
+                    <!--<input size="16" id="startTime" type="text" value="" readonly class="form-control form_datetime">-->
+                    <!--<input type="hidden" id="startTimeFormat" value="" name="startTime">-->
+                    <!--</div>-->
+                    <!--&lt;!&ndash;结束时间 &ndash;&gt;-->
+                    <!--<div class="col-sm-2">-->
+                    <!--<label for="endTime">endTime</label>-->
+                    <!--<input size="16" id="endTime" type="text" value="" readonly class="form-control form_datetime">-->
+                    <!--<input type="hidden" id="endTimeFormat" value="" name="endTime">-->
+                    <!--</div>-->
+
+                </div>
+                <hr>
+                <!--第二行参数 -->
+                <div>
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <label for="account">account</label>
+                            <input type="text" class="form-control" id="account"  value="17601543213">
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <label for="IMEI">IMEI</label>
+                            <input type="text" class="form-control" id="IMEI"  value="867951035264677">
+                        </div>
+
+                    </div>
+                    <!-- 开始时间-->
+                    <div class="col-sm-2">
+                        <label for="startTime">startTime</label>
+                        <input size="16" id="startTime" type="text" value="" readonly
+                               class="form-control form_datetime">
+                        <input type="hidden" id="startTimeFormat" value="" name="startTime">
+                    </div>
+                    <!--结束时间 -->
+                    <div class="col-sm-2">
+                        <label for="endTime">endTime</label>
+                        <input size="16" id="endTime" type="text" value="" readonly class="form-control form_datetime">
+                        <input type="hidden" id="endTimeFormat" value="" name="endTime">
+                    </div>
+
+                </div>
+                <!--第三行参数 -->
+                <div>
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <label for="ip1">iphone1</label>
+                            <input type="text" class="form-control" id="ip1" placeholder="iphone1">
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <label for="ip2">iphone2</label>
+                            <input type="text" class="form-control" id="ip2" placeholder="iphone2">
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <label for="wsdl">前台wsdl地址</label>
+                            <input type="text" class="form-control" id="wsdl" placeholder="前台wsdl地址"
+                                   data-bv-notempty data-bv-notempty-message="此处必填">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label for="customer" class="text-left" name="">编辑查询参数</label>
+                        <textarea style="resize: none;height: 200px;" class=" form-control" id="customer" name="json"><QueryXml
+                                ServiceType="YGSM" QueryType2="11" Account="111"
+                                QueryContent="查询IMEI为12345678901234，在时间段20090203000000至20090205000000内,移动GSM业务中所有通话记录"
+                                Conditions="BeginTime,20090203000000;EndTime,20090205000000;IMEI,12345678901234">
+                            </QueryXml>
+                </textarea>
+
+                    </div>
+                </div>
+
+
+                <!--<div class="form-group">-->
+                <!--<label for="exampleInputFile">File input</label>-->
+                <!--<input type="file" id="exampleInputFile">-->
+                <!--<p class="help-block">Example block-level help text here.</p>-->
+                <!--</div>-->
+                <!--<div class="checkbox">-->
+                <!--<label>-->
+                <!--<input type="checkbox"> Check me out-->
+                <!--</label>-->
+                <!--</div>-->
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <button class="btn btn-default " id="sub">Submit</button>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label for="resultQueryData" class="text-left">结果集</label>
+                        <textarea style="resize: none;height: 100px;" class=" form-control" id="resultQueryData"
+                                  name="json">
+                </textarea>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--queryStatusTab分割线 -->
+        <!--queryStatusTab分割线 -->
+        <div class="tab-pane" id="queryStatusTab">
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <label for="queryStatus">queryStatus</label>
+                    <input type="text" class="form-control" id="queryStatus" placeholder="queryId">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-12">
+                    <button class="btn btn-default " id="subStatus">Submit</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-12">
+                    <label for="resultStatus" class="text-left">结果集</label>
+                    <textarea style="resize: none;height: 100px;" class=" form-control" id="resultStatus"
+                              name="json">
+                </textarea>
+
+                </div>
+            </div>
+
+        </div>
+        <!-- basicResourceTab分割线-->
+        <!-- basicResourceTab分割线-->
+        <!--<div class="tab-pane" id="basicResourceTab">-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-4">-->
+        <!--<label for="basicResource">basicResource</label>-->
+        <!--<input type="text" class="form-control" id="basicResource" placeholder="basicResource" value="1"-->
+        <!--readonly>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-12">-->
+        <!--<label for="customer" class="text-left" name="">编辑查询参数</label>-->
+        <!--<textarea style="resize: none;height: 200px;" class=" form-control" id="customerBasic" name="json"><QueryXml-->
+        <!--ServiceType="YGSM" QueryType2="11" Account="111"-->
+        <!--QueryContent="查询IMEI为12345678901234，在时间段20090203000000至20090205000000内,移动GSM业务中所有通话记录"-->
+        <!--Conditions="BeginTime,20090203000000;EndTime,20090205000000;IMEI,12345678901234">-->
+        <!--</QueryXml>-->
+        <!--</textarea>-->
+
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-12">-->
+        <!--<button class="btn btn-default " id="subBasic">Submit</button>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-12">-->
+        <!--<label for="resultResource" class="text-left">结果集</label>-->
+        <!--<textarea style="resize: none;height: 100px;" class=" form-control" id="resultResource"-->
+        <!--name="json">-->
+        <!--</textarea>-->
+
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!---->
+        <!--<div class="tab-pane" id="statisticsTab">-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-4">-->
+        <!--<label for="statistics">basicResource</label>-->
+        <!--&lt;!&ndash;<input type="text" class="form-control" id="statistics" placeholder="statistics">&ndash;&gt;-->
+        <!--<select class="form-control" id="statistics">-->
+        <!--<option></option>-->
+        <!--<option>1</option>-->
+        <!--<option>2</option>-->
+        <!--<option>3</option>-->
+        <!--<option>4</option>-->
+        <!--</select>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-12">-->
+        <!--<label for="customer" class="text-left" name="">编辑查询参数</label>-->
+        <!--<textarea style="resize: none;height: 200px;" class=" form-control" id="customerStatistics" name="json"><QueryXml-->
+        <!--ServiceType="YGSM" QueryType2="11" Account="111"-->
+        <!--QueryContent="查询IMEI为12345678901234，在时间段20090203000000至20090205000000内,移动GSM业务中所有通话记录"-->
+        <!--Conditions="BeginTime,20090203000000;EndTime,20090205000000;IMEI,12345678901234">-->
+        <!--</QueryXml>-->
+        <!--</textarea>-->
+
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-12">-->
+        <!--<button class="btn btn-default " id="subStatistics">Submit</button>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-12">-->
+        <!--<label for="resultResource" class="text-left">结果集</label>-->
+        <!--<textarea style="resize: none;height: 100px;" class=" form-control" id="resultStatistics"-->
+        <!--name="json">-->
+        <!--</textarea>-->
+
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!---->
+        <!--<div class="tab-pane" id="alarmTab">-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-4">-->
+        <!--<label for="alarm">alarm</label>-->
+        <!--<input type="text" class="form-control" id="alarm" placeholder="alarm">-->
+
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-12">-->
+        <!--<label for="customer" class="text-left" name="">编辑查询参数</label>-->
+        <!--<textarea style="resize: none;height: 200px;" class=" form-control" id="customerAlarm" name="json"><QueryXml-->
+        <!--ServiceType="YGSM" QueryType2="11" Account="111"-->
+        <!--QueryContent="查询IMEI为12345678901234，在时间段20090203000000至20090205000000内,移动GSM业务中所有通话记录"-->
+        <!--Conditions="BeginTime,20090203000000;EndTime,20090205000000;IMEI,12345678901234">-->
+        <!--</QueryXml>-->
+        <!--</textarea>-->
+
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-12">-->
+        <!--<button class="btn btn-default " id="subAlarm">Submit</button>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group">-->
+        <!--<div class="col-sm-12">-->
+        <!--<label for="resultAlarm" class="text-left">结果集</label>-->
+        <!--<textarea style="resize: none;height: 100px;" class=" form-control" id="resultAlarm"-->
+        <!--name="json">-->
+        <!--</textarea>-->
+
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+    </div>
+</div>
+</body>
+</html>
