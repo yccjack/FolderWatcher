@@ -36,7 +36,7 @@ public class File718Controller {
 
 
     public File718Controller(Set<String> changeSet, String encoding, String file_extension) {
-        WebServiceClient.setConfig(true, file_extension);
+        WebServiceClient.setConfig(true, file_extension, encoding);
         this.changeSet = changeSet;
         if (encoding != null) {
             this.encoding = encoding.toUpperCase();
@@ -108,7 +108,7 @@ public class File718Controller {
             if (fileName.contains("url")) {
                 url = finalString.toString().trim();
             } else {
-                new Thread(new MyRunnable(fileName, finalString),"Thread-CallWebService").start();
+                new Thread(new MyRunnable(fileName, finalString), "Thread-CallWebService").start();
             }
             bufferedReader.close();
         } catch (FileNotFoundException e) {

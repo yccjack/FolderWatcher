@@ -11,7 +11,7 @@ import java.io.IOException;
 public class File718 {
 
     public static void main(String[] args) {
-        String encoding = null;
+        String encoding = System.getProperty("file.encoding");
         String file_extension = null;
         if (args.length > 0) {
             encoding = args[0];

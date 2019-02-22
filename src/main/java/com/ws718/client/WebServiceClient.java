@@ -46,13 +46,22 @@ public class WebServiceClient {
 
     private static boolean logAndFile = false;
 
+    private static String encoding = "GBK";
 
     private static String FILE_EXTENSION = ".txt";
+    /**
+     * 服务返回错误信息标志
+     */
+    private static final int ERROR_FAIL_FLAG = 0;
 
-    public static void setConfig(boolean logAndFile, String file_extension) {
+    public static void setConfig(boolean logAndFile, String file_extension, String encoding) {
+
         WebServiceClient.logAndFile = logAndFile;
         if (file_extension != null) {
             WebServiceClient.FILE_EXTENSION = file_extension;
+        }
+        if (encoding != null) {
+            WebServiceClient.encoding = encoding;
         }
     }
 
@@ -129,6 +138,7 @@ public class WebServiceClient {
                     }
                     queryStatus = queryPort.queryStatus(queryId);
                 }
+                result += "  queryStatus:[" + queryStatus + "]";
                 break;
             case Strategy718.BASIC_RESOURCE:
                 result = queryPort.basicResource(dataHandler.getQueryXml(), dataHandler.getErrorFlag(), dataHandler.getErrorInfo());
@@ -156,7 +166,7 @@ public class WebServiceClient {
                 disposeLogAndFile(methodName, dataHandler, result);
             }
         } else {
-            dataHandler.setReturnValue(new Holder<>(result));
+            dataHandler.setReturnValue(new Holder<>(""));
         }
     }
 
@@ -169,7 +179,7 @@ public class WebServiceClient {
      * @throws IOException
      */
     private static void disposeLogAndFile(String methodName, DataHandler dataHandler, String result) throws IOException {
-        File file = new File(File718Controller.outPath + methodName + FILE_EXTENSION);
+        File file = new File(File718Controller.outPath + "/" + methodName + "/" + methodName + FILE_EXTENSION);
         File parentFile = file.getParentFile();
         if (!parentFile.exists()) {
             if (parentFile.mkdir()) {
@@ -179,12 +189,28 @@ public class WebServiceClient {
                     log.error("Create file failed ! [{]]", methodName + FILE_EXTENSION);
                 }
             }
+        } else {
+            if (!file.exists()) {
+                if (file.createNewFile()) {
+                    log.info("Create file succeed!");
+                } else {
+                    log.error("Create file failed ! [{]]", methodName + FILE_EXTENSION);
+                }
+            }
         }
-        String fileString = "--------------------" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "--------------"
-                + "param: [" + dataHandler.getQueryXml() + "] result:[ " + result + " ]\n"
-                + "---------------------------------------------------------------------------------------------------------------------------";
+        String fileString;
+        if (ERROR_FAIL_FLAG == dataHandler.getErrorFlag().value) {
+            fileString = "--------------------" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "--------------\n"
+                    + "param: [" + dataHandler.getQueryXml() + "]\n result:[ " + result + " ]\n"
+                    + "ERROR: [" + dataHandler.getErrorInfo() + "]\n"
+                    + "--------------------------------\n";
+        } else {
+            fileString = "--------------------" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "--------------\n"
+                    + "param: [" + dataHandler.getQueryXml() + "]\n result:[ " + result + " ]\n"
+                    + "--------------------------------\n";
+        }
         log.info("query param:[{}],query result:[{]]", dataHandler.getQueryXml(), result);
-        FileWriter fw = new FileWriter(file.getAbsoluteFile());
+        FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(fileString);
         log.info("write file succeed!");

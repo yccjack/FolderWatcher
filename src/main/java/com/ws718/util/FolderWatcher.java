@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -38,10 +39,18 @@ public class FolderWatcher {
      */
     private AtomicInteger count = new AtomicInteger(0);
 
+    /**
+     * 自定义编码
+     */
     private String encoding;
 
+    /**
+     * 自定义文件类型
+     */
     private String file_extension;
 
+
+    private AtomicBoolean Is_init = new AtomicBoolean(true);
 
     /**
      * 监听文件新建与修改
@@ -76,6 +85,9 @@ public class FolderWatcher {
      */
     public void start(String directory) throws InterruptedException {
         String preFileName = null;
+        if (Is_init.getAndSet(false)) {
+            initUrl(directory);
+        }
         while (true) {
             WatchKey key = watcher.take();
             for (WatchEvent<?> event : key.pollEvents()) {
@@ -89,6 +101,7 @@ public class FolderWatcher {
                     // 判断文件是否创建成功
                     boolean fileIsCreateSuccess = fileIsCreateSuccess(directory + fileName);
                     if (fileIsCreateSuccess) {
+                        logger.info("file is created succeed!:[{}]", fileName);
                     }
                 }
                 if (!fileName.toString().contains("jb_tmp") && !fileName.toString().contains("jb_old")) {
@@ -122,6 +135,31 @@ public class FolderWatcher {
     }
 
     /**
+     * 判断启动时目录是否含有url文件
+     *
+     * @param directory 监听目录
+     */
+    private void initUrl(String directory) {
+        File file = new File(directory);
+        if (file.exists()) {
+            File[] files = file.listFiles();
+            if (null == files || files.length == 0) {
+                logger.info("Folder has nothing");
+            } else {
+                for (File file2 : files) {
+                    String name = file2.getName();
+                    if (name.contains("url")) {
+                        url = file2.getName();
+                        break;
+                    }
+                }
+            }
+        } else {
+            logger.error("Folder is not exists!");
+        }
+    }
+
+    /**
      * 变化的文件中是否含有url文件,如若没有返回false,有则返回true
      *
      * @param changeSet 指定文件夹下改变的文件列表
@@ -139,6 +177,12 @@ public class FolderWatcher {
     }
 
 
+    /**
+     * 监听的ENTRY_CREATE事件 文件是否创建完成,防止因为有ENTRY_CREATE事件却没有完成文件
+     *
+     * @param filePath 监听目录
+     * @return ENTRY_CREATE文件是否创建完成
+     */
     private boolean fileIsCreateSuccess(String filePath) {
         try {
             File file;

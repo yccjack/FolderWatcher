@@ -2,6 +2,8 @@ package com.ws718.util;
 
 import javax.xml.ws.Holder;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * * @author ycc
@@ -9,7 +11,7 @@ import java.io.Serializable;
 public class DataHandler implements Serializable {
     private String queryXml;
     private Holder<String> queryID = new Holder<>();
-    private Holder<Integer> errorFlag = new Holder<>(0);
+    private Holder<Integer> errorFlag = new Holder<>(1);
     private Holder<String> errorInfo = new Holder<>();
     transient private Holder<String> returnValue = new Holder<>();
     transient private Object otherResult;
