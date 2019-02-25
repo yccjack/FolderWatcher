@@ -35,7 +35,7 @@ public class FolderWatcher {
     private Set<String> changeSet = new HashSet<>();
 
     /**
-     * 控制url是否是第一次给予(在之后的文件改变中url是不变得,但是此参数必须添加到改变文件的列表中.)
+     * 控制url是否是第一次给予(在之后的文件改变中url可能是不变的,但是此参数必须添加到改变文件的列表中.才能读取)
      */
     private AtomicInteger count = new AtomicInteger(0);
 
@@ -50,7 +50,10 @@ public class FolderWatcher {
     private String file_extension;
 
 
-    private AtomicBoolean Is_init = new AtomicBoolean(true);
+    /**
+     * 启动项目判断是否需要进行一次文件遍历读取url
+     */
+    private AtomicBoolean is_init = new AtomicBoolean(true);
 
     /**
      * 监听文件新建与修改
@@ -74,6 +77,19 @@ public class FolderWatcher {
                 }
             }
         }, "Thread-fileHandler").start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    watcher.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //
+                    // logger.error(" watcher.close error!");
+                }
+            }
+        }));
     }
 
 
@@ -81,11 +97,11 @@ public class FolderWatcher {
      * 监听文件夹文件变化并对改变的文件做处理
      *
      * @param directory 需要监听的目录
-     * @throws InterruptedException
+     * @throws InterruptedException InterruptedException
      */
     public void start(String directory) throws InterruptedException {
         String preFileName = null;
-        if (Is_init.getAndSet(false)) {
+        if (is_init.getAndSet(false)) {
             initUrl(directory);
         }
         while (true) {
@@ -104,12 +120,13 @@ public class FolderWatcher {
                         logger.info("file is created succeed!:[{}]", fileName);
                     }
                 }
-                if (!fileName.toString().contains("jb_tmp") && !fileName.toString().contains("jb_old")) {
-                    if (preFileName == null || !fileName.toString().equalsIgnoreCase(preFileName)) {
+                String fileNameString = fileName.toString();
+                if (!fileNameString.contains("jb_tmp") && !fileNameString.contains("jb_old") && !fileNameString.contains("swp")) {
+                    if (!fileNameString.equalsIgnoreCase(preFileName)) {
                         logger.debug("Event [{}] has happened,which fileName is [{}] ", kind.name(), fileName);
-                        preFileName = fileName.toString();
+                        preFileName = fileNameString;
                         count.incrementAndGet();
-                        changeSet.add(fileName.toString());
+                        changeSet.add(fileNameString);
                         if (preFileName.contains("url")) {
                             url = preFileName;
                         }
@@ -163,7 +180,7 @@ public class FolderWatcher {
      * 变化的文件中是否含有url文件,如若没有返回false,有则返回true
      *
      * @param changeSet 指定文件夹下改变的文件列表
-     * @return
+     * @return boolean
      */
     private boolean hasUrl(Set<String> changeSet) {
         boolean flag = false;

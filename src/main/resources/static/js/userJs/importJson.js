@@ -47,7 +47,12 @@ $(function () {
     $queryType2.change(function () {
         if ($("#methodName").html() == "Statistics") {
             handlerFX($queryType2, 1);
+        } else if ($("#methodName").html() == "Alarm") {
+            $("#rel_queryType2").empty();
+            var html = "<option>1</option><option>2</option><option>3</option>"
+            $("#rel_queryType2").append(html)
         } else {
+
             handlerFX($queryType2, 2);
         }
 
@@ -100,7 +105,7 @@ function importJsonContent(type) {
             jsontip = $("#queryData");
         } else if (type == "queryType2") {
             jsontip = $("#queryType2");
-            strHtml +="<option></option>";
+            strHtml += "<option></option>";
         }
 
         //存储数据的变量
@@ -291,8 +296,13 @@ function menuClick() {
             $("#rel_queryType2").empty();
             $("#sub").removeAttr("disabled");
             importJsonContent("queryType2");
-        }else if (_a == "Alarm") {
-            $("#sub").attr("disabled" , "true");
+        } else if (_a == "Alarm") {
+            $("#queryType2").empty();
+            $("#rel_queryType2").empty();
+            $("#sub").removeAttr("disabled");
+            var html = "<option></option><option>返回值:1,2,3</option>";
+            $("#queryType2").html(html);
+            $("#rel_queryType2").html("<option></option></option><option>1</option><option>2</option><option>3</option>");
         }
         appendFinal();
     });

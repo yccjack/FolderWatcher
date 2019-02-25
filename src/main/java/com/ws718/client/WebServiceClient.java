@@ -46,9 +46,10 @@ public class WebServiceClient {
 
     private static boolean logAndFile = false;
 
+
     private static String encoding = "GBK";
 
-    private static String FILE_EXTENSION = ".txt";
+    private static String FILE_EXTENSION = "";
     /**
      * 服务返回错误信息标志
      */
@@ -91,10 +92,12 @@ public class WebServiceClient {
         try {
             Map<String, String> map = JSON.parseObject(param, Map.class);
             String wsdl = map.get(WSDL);
-            if (wsdl != null && wsdl.contains(WSDL)) {
-                realUrl = wsdl.substring(0, wsdl.indexOf("?wsdl"));
-            } else if (!wsdl.contains(WSDL)) {
-                realUrl = wsdl;
+            if (wsdl != null) {
+                if (wsdl.contains(WSDL)) {
+                    realUrl = wsdl.substring(0, wsdl.indexOf("?wsdl"));
+                } else {
+                    realUrl = wsdl;
+                }
             }
             String methodName = map.get("method");
 
@@ -130,6 +133,7 @@ public class WebServiceClient {
             case Strategy718.QUERY_DATA_ASY:
                 result = queryPort.queryData(dataHandler.getQueryXml(), dataHandler.getQueryID(), dataHandler.getErrorFlag(), dataHandler.getErrorInfo());
                 int queryStatus = queryPort.queryStatus(queryId);
+                log.debug("queryData2 return status is [{}]", queryStatus);
                 while (DataHandler.COMPLETE_STATUS != queryStatus) {
                     try {
                         Thread.sleep(100);
@@ -176,7 +180,7 @@ public class WebServiceClient {
      * @param methodName  文件名前缀
      * @param dataHandler 封装对象
      * @param result      结果
-     * @throws IOException
+     * @throws IOException IOException
      */
     private static void disposeLogAndFile(String methodName, DataHandler dataHandler, String result) throws IOException {
         File file = new File(File718Controller.outPath + "/" + methodName + "/" + methodName + FILE_EXTENSION);
@@ -203,11 +207,11 @@ public class WebServiceClient {
             fileString = "--------------------" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "--------------\n"
                     + "param: [" + dataHandler.getQueryXml() + "]\n result:[ " + result + " ]\n"
                     + "ERROR: [" + dataHandler.getErrorInfo() + "]\n"
-                    + "--------------------------------\n";
+                    + "\n";
         } else {
             fileString = "--------------------" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "--------------\n"
                     + "param: [" + dataHandler.getQueryXml() + "]\n result:[ " + result + " ]\n"
-                    + "--------------------------------\n";
+                    + "\n";
         }
         log.info("query param:[{}],query result:[{]]", dataHandler.getQueryXml(), result);
         FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
@@ -215,6 +219,7 @@ public class WebServiceClient {
         bw.write(fileString);
         log.info("write file succeed!");
         bw.close();
+
     }
 
     /**
@@ -263,13 +268,17 @@ public class WebServiceClient {
             queryservice = new com.dxss.ws.Queryservice(url);
             QueryServicePortType queryPort = queryservice.getQueryServiceFor718ImplPort();
             try {
-                callWebservice(queryParam, fileName.substring(0, fileName.indexOf(".")), queryPort, dataHandler);
+                callWebservice(queryParam
+                        , fileName.contains(".")?fileName.substring(0, fileName.indexOf(".")):fileName
+                        , queryPort
+                        ,dataHandler);
             } catch (IOException e) {
                 log.error("process the file error!:[{}]---[{}]", Thread.currentThread().getName(), fileName);
             }
         } catch (MalformedURLException e) {
             log.info("client error!:[]", e);
             dataHandler.setReturnValue(new Holder<>("client error!"));
+            dataHandler.setErrorFlag(new Holder<>(0));
         }
     }
 

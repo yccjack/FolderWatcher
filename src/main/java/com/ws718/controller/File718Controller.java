@@ -49,7 +49,7 @@ public class File718Controller {
     }
 
     /**
-     * @param path
+     * @param path InFile
      */
     public void traverseFolder(String path) {
         if (changeSet == null) {
@@ -58,7 +58,6 @@ public class File718Controller {
                 File[] files = file.listFiles();
                 if (null == files || files.length == 0) {
                     logger.info("Folder has nothing");
-                    return;
                 } else {
                     disposeFile(files);
                 }
@@ -95,12 +94,12 @@ public class File718Controller {
         final StringBuilder finalString = new StringBuilder();
         String fileName = file.getName();
         logger.debug("File:" + fileName);
-        InputStreamReader inputStreamReader = null;
+        InputStreamReader inputStreamReader;
         try {
             inputStreamReader = new InputStreamReader(new FileInputStream(file), encoding);
 
             bufferedReader = new BufferedReader(inputStreamReader);
-            String temp = null;
+            String temp;
             while ((temp = bufferedReader.readLine()) != null) {
                 finalString.append(temp);
             }
