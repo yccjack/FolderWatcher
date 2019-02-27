@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -20,6 +22,8 @@ import static java.nio.file.StandardWatchEventKinds.*;
  */
 public class FolderWatcher {
     private Logger logger = LoggerFactory.getLogger(FolderWatcher.class);
+
+    private ConcurrentMap<String, String> eventMap = new ConcurrentHashMap<>(16);
     /**
      * 文件夹监听
      */
@@ -105,6 +109,7 @@ public class FolderWatcher {
         }
         while (true) {
             WatchKey key = watcher.take();
+            long changeTime = System.currentTimeMillis();
             for (WatchEvent<?> event : key.pollEvents()) {
                 WatchEvent.Kind<?> kind = event.kind();
                 //事件可能lost or discarded
@@ -122,6 +127,11 @@ public class FolderWatcher {
                 String fileNameString = fileName.toString();
                 if (!fileNameString.contains("jb_tmp") && !fileNameString.contains("jb_old") && !fileNameString.contains("swp")) {
                     if (!fileNameString.equalsIgnoreCase(preFileName)) {
+                        long intervalTime = System.currentTimeMillis() - changeTime;
+                        if (eventMap.get(fileNameString) != null && !eventMap.get(fileNameString).equals(kind.name()) && intervalTime < 1000) {
+                            continue;
+                        }
+                        eventMap.put(fileNameString, kind.name());
                         logger.debug("Event [{}] has happened,which fileName is [{}] ", kind.name(), fileName);
                         preFileName = fileNameString;
                         count.incrementAndGet();
