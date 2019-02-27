@@ -7,7 +7,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,8 +24,6 @@ public class FolderWatcher {
      * 文件夹监听
      */
     private WatchService watcher;
-
-
     /**
      * url文件名称
      */
@@ -47,37 +46,37 @@ public class FolderWatcher {
     /**
      * 自定义文件类型
      */
-    private String file_extension;
+    private String fileExtension;
 
 
     /**
      * 启动项目判断是否需要进行一次文件遍历读取url
      */
-    private AtomicBoolean is_init = new AtomicBoolean(true);
+    private AtomicBoolean isInit = new AtomicBoolean(true);
 
     /**
      * 监听文件新建与修改
      *
      * @param directory 需要监听的目录
-     * @throws IOException 目录不存在
+     * @throws IOException IOException
      */
-    public FolderWatcher(final String directory, String encoding, String file_extension) throws IOException {
+    public FolderWatcher(final String directory, String encoding, String fileExtension) throws IOException {
+        Thread.currentThread().setName("Thread-FolderWatcher");
         this.encoding = encoding;
-        this.file_extension = file_extension;
+        this.fileExtension = fileExtension;
         watcher = FileSystems.getDefault().newWatchService();
         Path path = Paths.get(directory);
         path.register(watcher, ENTRY_CREATE, ENTRY_MODIFY);
-        new Thread(new Runnable() {
+        ActMutexExecutorServiceUtil.getExecutorServiceInstance().submit(new Runnable() {
             @Override
             public void run() {
                 try {
                     start(directory);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error("FolderWatcher -->FolderWatcher  error happened!");
                 }
             }
-        }, "Thread-fileHandler").start();
-
+        });
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
@@ -99,9 +98,9 @@ public class FolderWatcher {
      * @param directory 需要监听的目录
      * @throws InterruptedException InterruptedException
      */
-    public void start(String directory) throws InterruptedException {
+    public synchronized void start(String directory) throws InterruptedException {
         String preFileName = null;
-        if (is_init.getAndSet(false)) {
+        if (isInit.getAndSet(false)) {
             initUrl(directory);
         }
         while (true) {
@@ -138,7 +137,7 @@ public class FolderWatcher {
                 count.incrementAndGet();
             }
             if (hasUrl(changeSet) && count.get() != 1) {
-                File718Controller fileController = new File718Controller(changeSet, encoding, file_extension);
+                File718Controller fileController = new File718Controller(changeSet, encoding, fileExtension);
                 fileController.traverseFolder(File718Controller.InPath);
                 changeSet.clear();
                 preFileName = null;
@@ -211,7 +210,7 @@ public class FolderWatcher {
                 Thread.sleep(100);
                 file = new File(filePath);
                 len2 = file.length();
-                System.out.println("Before the 500 ms with then:" + len1 + "," + len2);
+                logger.debug("Before the 100 ms with then:" + len1 + "," + len2);
             } while (len1 < len2);
             return true;
         } catch (Exception e) {

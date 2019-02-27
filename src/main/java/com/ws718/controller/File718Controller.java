@@ -1,6 +1,7 @@
 package com.ws718.controller;
 
 import com.ws718.client.WebServiceClient;
+import com.ws718.util.ActMutexExecutorServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -72,6 +73,11 @@ public class File718Controller {
         }
     }
 
+    /**
+     * 处理文件列表
+     *
+     * @param files 目录文件列表
+     */
     private void disposeFile(File[] files) {
         for (File file2 : files) {
             if (file2.isDirectory()) {
@@ -87,7 +93,7 @@ public class File718Controller {
     /**
      * 处理每一个被监听文件的变化
      *
-     * @param file
+     * @param file 待处理的文件
      */
     private void handlerFile(File file) {
         BufferedReader bufferedReader = null;
@@ -107,7 +113,7 @@ public class File718Controller {
             if (fileName.contains("url")) {
                 url = finalString.toString().trim();
             } else {
-                new Thread(new MyRunnable(fileName, finalString), "Thread-CallWebService").start();
+                ActMutexExecutorServiceUtil.getExecutorServiceInstance().submit(new MyRunnable(fileName, finalString));
             }
             bufferedReader.close();
         } catch (FileNotFoundException e) {

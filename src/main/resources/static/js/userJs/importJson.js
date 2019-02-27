@@ -302,7 +302,6 @@ function menuClick() {
             $("#sub").removeAttr("disabled");
             var html = "<option></option><option>返回值:1,2,3</option>";
             $("#queryType2").html(html);
-            $("#rel_queryType2").html("<option></option></option><option>1</option><option>2</option><option>3</option>");
         }
         appendFinal();
     });
