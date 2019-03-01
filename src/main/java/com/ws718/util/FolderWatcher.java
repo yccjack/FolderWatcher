@@ -128,7 +128,7 @@ public class FolderWatcher {
                 if (!fileNameString.contains("jb_tmp") && !fileNameString.contains("jb_old") && !fileNameString.contains("swp")) {
                     if (!fileNameString.equalsIgnoreCase(preFileName)) {
                         long intervalTime = System.currentTimeMillis() - changeTime;
-                        if (eventMap.get(fileNameString) != null && !eventMap.get(fileNameString).equals(kind.name()) && intervalTime < 1000) {
+                        if (eventMap.get(fileNameString) != null && !eventMap.get(fileNameString).equals(kind.name()) && intervalTime < 200) {
                             continue;
                         }
                         eventMap.put(fileNameString, kind.name());
