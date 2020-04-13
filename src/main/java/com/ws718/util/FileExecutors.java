@@ -11,6 +11,7 @@ import java.util.concurrent.*;
  * @date :16:16 2019/2/25
  */
 public enum FileExecutors {
+    //实例
     INSTANCE;
     private Logger logger = LoggerFactory.getLogger(FileExecutors.class);
     /**

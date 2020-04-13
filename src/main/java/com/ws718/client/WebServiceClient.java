@@ -85,9 +85,9 @@ public class WebServiceClient {
         String realUrl = "";
         URL url;
         Queryservice queryservice;
-        WEB_SERVICE_REQUEST_LOCK.lock();
         DataHandler dataHandler = new DataHandler();
         try {
+            WEB_SERVICE_REQUEST_LOCK.lock();
             Map<String, String> map = JSON.parseObject(param, Map.class);
             String wsdl = map.get(WSDL);
             if (wsdl != null) {
