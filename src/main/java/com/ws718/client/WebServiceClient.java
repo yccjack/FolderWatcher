@@ -138,6 +138,7 @@ public class WebServiceClient {
                         int queryStatus = queryPort.queryStatus(Id);
                         log.debug("queryData2 return status is [{}]", queryStatus);
                         while (DataHandler.COMPLETE_STATUS != queryStatus) {
+
                             try {
                                 Thread.sleep(100);
                             } catch (InterruptedException e) {
