@@ -1,31 +1,19 @@
 package com.ws718.client;
 
 
-import ch.qos.logback.core.net.server.Client;
 import com.alibaba.fastjson.JSON;
-import com.dxss.ws.QueryServicePortType;
-import com.dxss.ws.Queryservice;
-import com.ws718.abst.Strategy718;
 import com.ws718.bean.ResultBean;
-import com.ws718.controller.File718;
 import com.ws718.controller.File718Controller;
-import com.ws718.util.ActMutexExecutorServiceUtil;
 import com.ws718.util.DataHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.Holder;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -65,11 +53,7 @@ public class WebServiceClient {
     }
 
     public static ResultBean getWebServer(String param) {
-        try {
-            callWebService(param);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        callWebService(param);
         DataHandler dataHandler = new DataHandler();
         return handler(dataHandler);
     }
@@ -80,125 +64,15 @@ public class WebServiceClient {
      *
      * @param param 前端json参数
      */
-    private static void callWebService(String param) throws IOException {
+    private static void callWebService(String param) {
         log.info("Request Param:[]", param);
-        String realUrl = "";
-        URL url;
-        Queryservice queryservice;
-        DataHandler dataHandler = new DataHandler();
         try {
             WEB_SERVICE_REQUEST_LOCK.lock();
-            Map<String, String> map = JSON.parseObject(param, Map.class);
-            String wsdl = map.get(WSDL);
-            if (wsdl != null) {
-                if (wsdl.contains(WSDL)) {
-                    realUrl = wsdl.substring(0, wsdl.indexOf("?wsdl"));
-                } else {
-                    realUrl = wsdl;
-                }
-            }
-            String methodName = map.get("method");
-
-            dataHandler.setQueryXml(map.get("param"));
-            url = new URL(realUrl);
-            queryservice = new com.dxss.ws.Queryservice(url);
-            QueryServicePortType queryPort = queryservice.getQueryServiceFor718ImplPort();
-            callWebservice(map.get("queryId"), methodName, queryPort, dataHandler);
-
-        } catch (MalformedURLException e) {
-            log.info("client error!:[]", e);
-            dataHandler.setReturnValue(new Holder<>("client error!"));
-            e.printStackTrace();
         } finally {
             WEB_SERVICE_REQUEST_LOCK.unlock();
         }
     }
 
-    /**
-     * 调用远程服务
-     *
-     * @param queryId     查询ID
-     * @param methodName  查询方法
-     * @param queryPort   查询的webservice服务
-     * @param dataHandler 封装参数实体类
-     */
-    private static void callWebservice( final String queryId,final String methodName, final QueryServicePortType queryPort, final DataHandler dataHandler) {
-        ExecutorService executors = ActMutexExecutorServiceUtil.getExecutorServiceInstance();
-        Future<String> submit = executors.submit(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                String result = null;
-                switch (methodName) {
-                    case Strategy718.QUERY_DATA_SYC:
-                        result = queryPort.queryData(dataHandler.getQueryXml(), dataHandler.getQueryID(), dataHandler.getErrorFlag(), dataHandler.getErrorInfo());
-                        break;
-                    case Strategy718.QUERY_DATA_ASY:
-                        result = queryPort.queryData(dataHandler.getQueryXml(), dataHandler.getQueryID(), dataHandler.getErrorFlag(), dataHandler.getErrorInfo());
-                        String Id = dataHandler.getQueryID().value;
-                        int queryStatus = queryPort.queryStatus(Id);
-                        log.debug("queryData2 return status is [{}]", queryStatus);
-                        while (DataHandler.COMPLETE_STATUS != queryStatus) {
-
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException e) {
-                                log.error("Thread error:[{}]", Thread.currentThread().getName());
-                            }
-                            queryStatus = queryPort.queryStatus(Id);
-                        }
-                        result += "  queryStatus:[" + queryStatus + "]";
-
-                        break;
-                    case Strategy718.BASIC_RESOURCE:
-                        result = queryPort.basicResource(dataHandler.getQueryXml(), dataHandler.getErrorFlag(), dataHandler.getErrorInfo());
-
-                        break;
-                    case Strategy718.STATISTICS:
-                        result = queryPort.statistics(dataHandler.getQueryXml(), dataHandler.getErrorFlag(), dataHandler.getErrorInfo());
-
-                        break;
-                    case Strategy718.ALARM:
-                        result = queryPort.alarm(dataHandler.getQueryXml(), dataHandler.getErrorFlag(), dataHandler.getErrorInfo());
-
-                        break;
-                    case Strategy718.QUERY_STATUS:
-                        int Status = queryPort.queryStatus(queryId);
-                        result = Status + "";
-
-                        break;
-                    default:
-                        log.error("methodName error!");
-                        break;
-                }
-                return result;
-            }
-
-        });
-
-        String result = null;
-        try {
-            result = submit.get(File718.timeout, TimeUnit.SECONDS);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            log.error("query timeout! queryMethod:[{}]", methodName);
-            result = "query timeout! queryMethod:[]" + methodName;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        if (result != null) {
-            if (result.contains("{") && result.contains("}")) {
-                List list = JSON.parseObject(result, List.class);
-                dataHandler.setOtherResult(list);
-            }
-            if (logAndFile) {
-                disposeLogAndFile(methodName, dataHandler, result);
-            }
-        } else {
-            dataHandler.setReturnValue(new Holder<>(""));
-        }
-    }
 
     /**
      * 将结果写入文件
@@ -279,46 +153,5 @@ public class WebServiceClient {
         result.setResult(dataHandler.getReturnValue() == null ? null : dataHandler.getOtherResult());
         return result;
     }
-
-
-    /**
-     * 以文件的方式调用远程服务
-     *
-     * @param fileName   文件名
-     * @param queryParam 查询参数(文件内容)
-     * @param wsdl       url文件的内容
-     */
-    public static void fileToWebService(String fileName, String queryParam, String wsdl) {
-        log.info("Request Param:fileName:[{}],queryParam:[{}]", fileName, queryParam);
-        String realUrl = "";
-        URL url;
-        Queryservice queryservice;
-
-        if (wsdl != null) {
-            if (wsdl.contains(WSDL)) {
-                realUrl = wsdl.substring(0, wsdl.indexOf("?wsdl"));
-            } else {
-                realUrl = wsdl;
-            }
-        } else {
-            log.error("url is error! url:[{}]");
-        }
-        final DataHandler dataHandler = new DataHandler();
-        try {
-            dataHandler.setQueryXml(queryParam);
-            url = new URL(realUrl);
-            queryservice = new com.dxss.ws.Queryservice(url);
-            QueryServicePortType queryPort = queryservice.getQueryServiceFor718ImplPort();
-            callWebservice(queryParam
-                    , fileName.contains(".") ? fileName.substring(0, fileName.indexOf(".")) : fileName
-                    , queryPort
-                    , dataHandler);
-        } catch (MalformedURLException e) {
-            log.error("client error!:[]", e);
-            dataHandler.setReturnValue(new Holder<>("client error!"));
-            dataHandler.setErrorFlag(new Holder<>(0));
-        }
-    }
-
 
 }
